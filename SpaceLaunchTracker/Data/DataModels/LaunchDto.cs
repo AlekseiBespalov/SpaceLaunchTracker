@@ -6,7 +6,7 @@ namespace SpaceLaunchTracker.Data.DataModels
     {
         public int Id { get; set; }
         public int LaunchNumber { get; set; }
-        public string MissionName { get; set; } = "Unknown";
+        public string MissionName { get; set; }
         public DateTime LaunchDate { get; set; }
         public string LaunchSite { get; set; }
         public string RocketName { get; set; }
