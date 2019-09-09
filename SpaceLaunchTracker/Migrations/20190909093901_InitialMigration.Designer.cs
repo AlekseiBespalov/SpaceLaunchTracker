@@ -10,7 +10,7 @@ using SpaceLaunchTracker.Data;
 namespace SpaceLaunchTracker.Migrations
 {
     [DbContext(typeof(SpaceLaunchTrackerDbContext))]
-    [Migration("20190905141840_InitialMigration")]
+    [Migration("20190909093901_InitialMigration")]
     partial class InitialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

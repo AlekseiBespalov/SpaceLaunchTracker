@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace SpaceLaunchTracker.Data
+namespace SpaceLaunchTracker.Data.ServiceModels
 {
-    public class ExternalLaunchModel
+    public class LaunchModel
     {
         public int LaunchId { get; set; }
         public string MissionName { get; set; }
@@ -13,10 +13,11 @@ namespace SpaceLaunchTracker.Data
         public string InfoUrl { get; set; }
         public DateTime ChangedTime { get; set; }
 
-        public int CountryId { get; set; }
-        public string CountryCode { get; set; }
-
         public int AgencyId { get; set; }
         public string AgencyName { get; set; }
+        public string AgencyInfoUrl { get; set; }
+
+        public int CountryId { get; set; }
+        public string CountryCode { get; set; }
     }
 }

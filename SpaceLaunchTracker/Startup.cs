@@ -1,18 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using AutoMapper;
+using LaunchAPIConsole.Data.ApiModels.SpaceX.Launches;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using SpaceLaunchTracker.Configuration;
 using SpaceLaunchTracker.Data;
+using SpaceLaunchTracker.Data.ApiModels.LaunchLibrary.Launches;
 using SpaceLaunchTracker.Data.Clients;
 using SpaceLaunchTracker.Data.Repository;
+using SpaceLaunchTracker.Mappings;
 using SpaceLaunchTracker.Services;
 using Swashbuckle.AspNetCore.Swagger;
 
@@ -37,6 +37,9 @@ namespace SpaceLaunchTracker
                 options.MinimumSameSitePolicy = SameSiteMode.None;
             });
 
+            services.Configure<DataUpdatesConfiguration>(Configuration);
+
+            services.AddAutoMapper(typeof(DomainProfile));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddSwaggerGen(c =>
@@ -49,9 +52,9 @@ namespace SpaceLaunchTracker
             services.AddScoped<ILaunchRepository, LaunchRepository>();
             services.AddScoped<IAgencyRepository, AgencyRepository>();
             services.AddScoped<ICountryRepository, CountryRepository>();
-            services.AddScoped<ILaunchClient, SpaceXClient>();
+            services.AddScoped<ILaunchClient<SpaceXLaunchModel>, SpaceXClient>();
+            services.AddScoped<ILaunchClient<LibraryLaunchModel>, LaunchLibraryClient>();
             services.AddScoped<LaunchService>();
-
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

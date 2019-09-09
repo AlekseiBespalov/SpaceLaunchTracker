@@ -1,56 +1,42 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using AutoMapper;
+using LaunchAPIConsole.Data.ApiModels.SpaceX.Launches;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SpaceLaunchTracker.Data;
+using Microsoft.Extensions.Options;
+using SpaceLaunchTracker.Configuration;
 using SpaceLaunchTracker.Data.Clients;
 using SpaceLaunchTracker.Data.DataModels;
 using SpaceLaunchTracker.Data.Repository;
 using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using SpaceLaunchTracker.Data.ApiModels.LaunchLibrary.Launches;
 
 namespace SpaceLaunchTracker.Services
 {
     internal class LaunchesUpdateService : IHostedService, IDisposable
     {
-        //private readonly ILogger _logger;
-        //private Timer _timer;
-
-        //private readonly ILaunchRepository _launchRepository;
-        //private readonly IAgencyRepository _agencyRepository;
-        //private readonly ICountryRepository _countryRepository;
-
-        //private readonly ILaunchClient _spaceXClient;
-        //private readonly ILaunchClient _launchLibraryClient;
-
-        //public LaunchesUpdateService(ILogger<LaunchesUpdateService> logger, ILaunchClient spaceXClient, ILaunchClient launchLibraryClient,
-        //    ILaunchRepository launchRepository, IAgencyRepository agencyRepository, ICountryRepository countryRepository)
-        //{
-        //    _logger = logger;
-
-        //    _launchRepository = launchRepository;
-        //    _agencyRepository = agencyRepository;
-        //    _countryRepository = countryRepository;
-
-        //    _spaceXClient = spaceXClient;
-        //    _launchLibraryClient = launchLibraryClient;
-        //}
-
+        private readonly DataUpdatesConfiguration _dataUpdatesConfiguration;
         private readonly IServiceProvider _serviceProvider;
+        private readonly IMapper _mapper;
         private readonly ILogger _logger;
         private Timer _timer;
 
-        public LaunchesUpdateService(IServiceProvider provider, ILogger<LaunchesUpdateService> logger)
+        public LaunchesUpdateService(IServiceProvider provider, IMapper mapper,
+            ILogger<LaunchesUpdateService> logger, IOptionsMonitor<DataUpdatesConfiguration> dataUpdatesConfiguration)
         {
+            _dataUpdatesConfiguration = dataUpdatesConfiguration.CurrentValue;
             _serviceProvider = provider;
+            _mapper = mapper;
             _logger = logger;
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
         {
             _logger.LogInformation("Background update service is starting.");
-            _timer = new Timer(UpdateDbRecordsFromApi, null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
+            _timer = new Timer(UpdateDbRecordsFromApi, null, TimeSpan.Zero, TimeSpan.FromSeconds(_dataUpdatesConfiguration.DataLifetimeMinutes));
 
             return Task.CompletedTask;
         }
@@ -63,79 +49,159 @@ namespace SpaceLaunchTracker.Services
             return Task.CompletedTask;
         }
 
+        bool _firstUpdate = false;
         private async void UpdateDbRecordsFromApi(object state)
         {
             using (var scope = _serviceProvider.CreateScope())
             {
-                var spaceXClient = scope.ServiceProvider.GetRequiredService<ILaunchClient>();
+                var spaceXClient = scope.ServiceProvider.GetRequiredService<ILaunchClient<SpaceXLaunchModel>>();
+                var launchLibraryClient = scope.ServiceProvider.GetRequiredService<ILaunchClient<LibraryLaunchModel>>();
                 var launchRepository = scope.ServiceProvider.GetRequiredService<ILaunchRepository>();
                 var agencyRepository = scope.ServiceProvider.GetRequiredService<IAgencyRepository>();
                 var countryRepository = scope.ServiceProvider.GetRequiredService<ICountryRepository>();
 
-                var spaceXLaunches = await spaceXClient.GetAllLaunches();
 
-                await launchRepository.AddLaunchesToDbIfNotExist(ConvertExternalLaunchToDto(spaceXLaunches));
-
-                foreach (ExternalLaunchModel spaceXLaunch in spaceXLaunches)
+                if (_firstUpdate == true)
                 {
-                    await agencyRepository.AddAgencyToDbIfNotExists(
-                        new AgencyDto
-                        {
-                            AgencyName = "SpaceX",
-                            InfoUrl = "https://wikipedia.org/wiki/SpaceX"
-                        });
+                    var spaceXLaunches = await spaceXClient.GetAllLaunches();
+
+                    foreach (var spaceXLaunch in spaceXLaunches)
+                    {
+                        var country = ConvertSpaceXCountryModelToDto(); //map to dto
+
+                        // add to repository (get id)
+                        var countryId = await countryRepository.AddCountryToDbIfNotExists(country);
+
+                        var agency = ConvertSpaceXAgencyModelToDto(countryId);
+                        var agencyId = await agencyRepository.AddAgencyToDbIfNotExists(agency);
+
+                        var launch = ConvertSpaceXLaunchToDto(spaceXLaunch, countryId, agencyId);
+                        await launchRepository.AddLaunchToDbIfNotExist(launch);
+                    }
+                    _firstUpdate = false;
+                }
+                else
+                {
+                    var spaceXLaunches = await spaceXClient.GetUpcomingLaunches();
+
+                    foreach (var spaceXLaunch in spaceXLaunches)
+                    {
+                        var country = ConvertSpaceXCountryModelToDto();
+
+                        var countryId = await countryRepository.AddCountryToDbIfNotExists(country);
+
+                        var agency = ConvertSpaceXAgencyModelToDto(countryId);
+                        var agencyId = await agencyRepository.AddAgencyToDbIfNotExists(agency);
+
+                        var launch = ConvertSpaceXLaunchToDto(spaceXLaunch, countryId, agencyId);
+                        await launchRepository.AddLaunchToDbIfNotExist(launch);
+                    }
                 }
 
-                foreach (ExternalLaunchModel spaceXLaunch in spaceXLaunches)
-                {
-                    await countryRepository.AddCountryToDbIfNotExists(
-                        new CountryDto
-                        {
-                            CountryCode = spaceXLaunch.CountryCode
-                        });
-                }
+                //var launchLibraryLaunches = await launchLibraryClient.GetUpcomingLaunches();
 
-                //var launchLibraryLaunches = _launchLibraryClient.GetAllLaunches();
-
-                //launchRepository.AddLaunchesToDbIfNotExist(ConvertExternalLaunchToDto(launchLibraryLaunches));
-
-                //foreach (ExternalLaunchModel libraryLaunch in launchLibraryLaunches)
+                //foreach (var launchLibraryLaunch in launchLibraryLaunches)
                 //{
-                //    agencyRepository.AddAgencyToDbIfNotExists(
-                //        new AgencyDto
-                //        {
-                //            AgencyName = libraryLaunch.AgencyName
-                //        });
+                //    var country = ConvertLaunchLibraryCountryModelToDto(launchLibraryLaunch);
+                //    var countryId = await countryRepository.AddCountryToDbIfNotExists(country);
+
+                //    var agency = ConvertLaunchLibraryAgencyModelToDto(launchLibraryLaunch, countryId);
+                //    var agencyId = await agencyRepository.AddAgencyToDbIfNotExists(agency);
+
+                //    var launch = ConvertLaunchLibraryLaunchModelToDto(launchLibraryLaunch, countryId, agencyId);
+                //    await launchRepository.AddLaunchToDbIfNotExist(launch);
                 //}
             }
-        }
-
-        private List<LaunchDto> ConvertExternalLaunchToDto(List<ExternalLaunchModel> extLaunchesModel)
-        {
-            List<LaunchDto> launches = new List<LaunchDto>();
-    
-            foreach (ExternalLaunchModel launch in extLaunchesModel)
-            {
-                launches.Add(new LaunchDto
-                {
-                    LaunchNumber = launch.LaunchId,
-                    MissionName = launch.MissionName,
-                    LaunchDate = launch.LaunchDate,
-                    LaunchSite = launch.LaunchSite,
-                    RocketName = launch.RocketName,
-                    MissionDetails = launch.MissionDetails,
-                    InfoUrl = launch.InfoUrl,
-                    ChangedTime = launch.ChangedTime,
-                    UpdatedTime = DateTime.UtcNow,
-                });
-            }
-
-            return launches;
         }
 
         public void Dispose()
         {
             _timer?.Dispose();
         }
+
+        #region SpaceX mappings
+        // LaunchDto (ExternalLaunchModel)
+        private LaunchDto ConvertSpaceXLaunchToDto(SpaceXLaunchModel launch, int countryId, int agencyId)
+        {
+            var launchDto = new LaunchDto
+            {
+                LaunchNumber = launch.FlightId,
+                MissionName = launch.MissionName,
+                LaunchDate = launch.LaunchDateUtc,
+                LaunchSite = launch.LaunchSite.SiteNameLong,
+                RocketName = launch.Rocket.RocketName,
+                MissionDetails = launch.Details,
+                InfoUrl = launch.Links.Wikipedia,
+                ChangedTime = DateTime.UtcNow,
+                UpdatedTime = DateTime.UtcNow,
+                Country = new CountryDto { Id = countryId },
+                Agency = new AgencyDto { Id = agencyId }
+            };
+            return launchDto;
+        }
+
+        private CountryDto ConvertSpaceXCountryModelToDto()
+        {
+            var countryDto = new CountryDto
+            {
+                CountryCode = "USA"
+            };
+            return countryDto;
+        }
+
+        private AgencyDto ConvertSpaceXAgencyModelToDto(int countryId)
+        {
+            var agencyDto = new AgencyDto
+            {
+                AgencyName = "SpaceX",
+                InfoUrl = "https://wikipedia.org/wiki/SpaceX",
+                Country = new CountryDto { Id = countryId}
+            };
+            return agencyDto;
+        }
+        #endregion
+
+        #region LaunchLibrary mappings
+
+        private CountryDto ConvertLaunchLibraryCountryModelToDto(LibraryLaunchModel launch)
+        {
+            var countryDto = new CountryDto
+            {
+                CountryCode = launch.Location.CountryCode
+            };
+            return countryDto;
+        }
+
+        private AgencyDto ConvertLaunchLibraryAgencyModelToDto(LibraryLaunchModel launch, int countryId)
+        {
+            var agencyDto = new AgencyDto
+            {
+                AgencyName = launch.Location?.Pads?[0].Agencies?[0].AgencyName,
+                InfoUrl = launch.Location.Pads[0].WikiURL,
+                Country =  new CountryDto { Id = countryId }
+            };
+            return agencyDto;
+        }
+
+        private LaunchDto ConvertLaunchLibraryLaunchModelToDto(LibraryLaunchModel launch, int countryId, int agencyId)
+        {
+            var launchDto = new LaunchDto
+            {
+                LaunchNumber = launch.LaunchId,
+                MissionName = launch.LaunchName,
+                LaunchDate = DateTime.ParseExact(launch.LaunchTime, "MMMM dd, yyyy HH:mm:ss UTC", CultureInfo.InvariantCulture),
+                LaunchSite = launch.Location.LocationName,
+                RocketName = launch.Rocket.RocketName,
+                MissionDetails = launch.Missions?[0]?.MissionName,
+                InfoUrl = launch.Location?.Pads?[0]?.InfoUrl,
+                ChangedTime = DateTime.Parse(launch.Changed, CultureInfo.InvariantCulture),
+                UpdatedTime = DateTime.UtcNow,
+                Country = new CountryDto { Id = countryId },
+                Agency = new AgencyDto { Id = agencyId }
+            };
+            return launchDto;
+        }
+
+        #endregion
     }
 }

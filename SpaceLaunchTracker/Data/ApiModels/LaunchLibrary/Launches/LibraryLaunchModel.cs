@@ -45,6 +45,7 @@ namespace SpaceLaunchTracker.Data.ApiModels.LaunchLibrary.Launches
 
         public string FailReason { get; set; }
 
+        [JsonProperty(PropertyName = "location")]
         public LaunchLibraryLocation Location { get; set; }
 
         public List<LaunchLibraryMission> Missions { get; set; }

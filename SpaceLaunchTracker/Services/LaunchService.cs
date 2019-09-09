@@ -1,5 +1,4 @@
 ﻿using SpaceLaunchTracker.Data.DataModels;
-using SpaceLaunchTracker.Data.Providers;
 using SpaceLaunchTracker.Data.Repository;
 using System;
 using System.Collections.Generic;
@@ -11,12 +10,10 @@ namespace SpaceLaunchTracker.Services
     public class LaunchService
     {
         private readonly ILaunchRepository _dbRepository;
-        private readonly ILaunchProvider _provider;
 
-        public LaunchService(ILaunchRepository dbRepository, ILaunchProvider provider)
+        public LaunchService(ILaunchRepository dbRepository)
         {
             _dbRepository = dbRepository;
-            _provider = provider;
         }
 
         public async Task<List<LaunchDto>> GetLaunches()

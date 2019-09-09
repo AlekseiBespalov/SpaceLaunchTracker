@@ -5,6 +5,7 @@ namespace SpaceLaunchTracker.Data.ApiModels.LaunchLibrary.Launches
 {
     public class LaunchLibraryLocation
     {
+        [JsonProperty(PropertyName = "pads")]
         public List<LaunchLibraryPad> Pads { get; set; }
 
         [JsonProperty(PropertyName = "id")]

@@ -12,7 +12,7 @@ namespace SpaceLaunchTracker.Data.Repository
 
 
         Task AddLaunchToDb(LaunchDto launch);
-        Task AddLaunchToDbIfNotExist(LaunchDto launch);
+        Task<int> AddLaunchToDbIfNotExist(LaunchDto launch);
         Task<LaunchDto> GetLaunchByIdAsync(int launchId);
 
 
