@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
+using SpaceLaunchTracker.Models;
 
 namespace SpaceLaunchTracker.Mappings
 {
@@ -15,34 +16,28 @@ namespace SpaceLaunchTracker.Mappings
         public DomainProfile()
         {
             #region SpaceX mappings
+
             CreateMap<SpaceXLaunchModel, CountryDto>()
-                .ForMember(destination => destination.Id,
-                    opt => opt.MapFrom(src => new CountryDto
-            {
-                CountryCode = "USA"
-            }));
-            
+                .BeforeMap((s, d) => d.CountryCode = "USA");
+
             CreateMap<SpaceXLaunchModel, AgencyDto>()
-                .ForMember(destination => destination.Id,
-                    opt => opt.MapFrom(src => new AgencyDto
-            {
-                AgencyName = "SpaceX"
-            }));
+                .BeforeMap((s, d) => d.AgencyName = "SpaceX")
+                .BeforeMap((s, d) => d.InfoUrl = "https://wikipedia.org/wiki/SpaceX")
+                .BeforeMap((s, d) => d.Country = new CountryDto {Id = 1});
 
             CreateMap<SpaceXLaunchModel, LaunchDto>()
-                .ForMember(destination => destination.Id, 
-                    opt => opt.MapFrom(src => new LaunchDto
-            {
-                LaunchNumber = src.FlightId,
-                MissionName = src.MissionName,
-                LaunchDate = src.LaunchDateUtc,
-                LaunchSite = src.LaunchSite.SiteName,
-                RocketName = src.Rocket.RocketName,
-                MissionDetails = src.Details,
-                InfoUrl = src.Links.Wikipedia,
-                ChangedTime = DateTime.UtcNow,
-                UpdatedTime = DateTime.UtcNow
-            }));
+                .BeforeMap((s, d) => d.Id = s.FlightId)
+                .BeforeMap((s, d) => d.MissionName = s.MissionName)
+                .BeforeMap((s, d) => d.LaunchDate = s.LaunchDateUtc)
+                .BeforeMap((s, d) => d.LaunchSite = s.LaunchSite.SiteNameLong)
+                .BeforeMap((s, d) => d.RocketName = s.Rocket.RocketName)
+                .BeforeMap((s, d) => d.MissionDetails = s.Details)
+                .BeforeMap((s, d) => d.InfoUrl = s.Links.Wikipedia)
+                .BeforeMap((s, d) => d.ChangedTime = DateTime.UtcNow)
+                .BeforeMap((s, d) => d.UpdatedTime = DateTime.UtcNow)
+                .BeforeMap((s, d) => d.Country = new CountryDto {Id = 1})
+                .BeforeMap((s, d) => d.Agency = new AgencyDto {Id = 1});
+
             #endregion
 
             #region LaunchLibrary mappings
@@ -74,6 +69,19 @@ namespace SpaceLaunchTracker.Mappings
                         ChangedTime = DateTime.Parse(src.Changed, CultureInfo.InvariantCulture),
                         UpdatedTime = DateTime.UtcNow
                     }));
+
+            #endregion
+
+            #region DtoToViewMappings
+
+            CreateMap<CountryDto, CountryViewModel>()
+                .ForMember(dest => dest.CountryId, opt => opt.MapFrom(dto => dto.Id));
+
+            CreateMap<AgencyDto, AgencyViewModel>()
+                .ForMember(dest => dest.AgencyId, opt => opt.MapFrom(dto => dto.Id));
+
+            CreateMap<LaunchDto, LaunchViewModel>()
+                .ForMember(dest => dest.LaunchId, opt => opt.MapFrom(dto => dto.Id));
 
             #endregion
         }

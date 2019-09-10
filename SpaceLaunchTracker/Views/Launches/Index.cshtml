@@ -1,7 +1,20 @@
-﻿@{
+﻿@model IEnumerable<SpaceLaunchTracker.Models.LaunchViewModel>
+
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    @*<h1 class="display-4">Welcome to Space Launch Tracker</h1>*@
-</div>
+    <div class="text-center">
+        @foreach (var launch in Model)
+        {
+            <h3>@launch.MissionName</h3>
+            <h5>@launch.LaunchNumber</h5>
+            <h5>@launch.LaunchDate</h5>
+            <h5>@launch.LaunchSite</h5>
+            <h5>@launch.RocketName</h5>
+            <h5>@launch.MissionDetails</h5>
+            <h5>@launch.InfoUrl</h5>
+            <h5>@launch.ChangedTime</h5>
+            <h5>--------------------</h5>
+        }
+    </div>

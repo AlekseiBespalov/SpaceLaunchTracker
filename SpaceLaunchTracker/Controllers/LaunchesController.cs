@@ -5,15 +5,27 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using SpaceLaunchTracker.Models;
+using SpaceLaunchTracker.Services;
 
 namespace SpaceLaunchTracker.Controllers
 {
     public class LaunchesController : Controller
     {
-        public IActionResult Index()
+        private readonly LaunchService _launchService;
+
+        public LaunchesController(LaunchService launchService)
         {
-            return View();
+            _launchService = launchService;
         }
+
+        //fix
+        [HttpGet]
+        public async Task<IActionResult> Index()
+        {
+            List<LaunchViewModel> launches = await _launchService.GetUpcomingLaunches();
+            return View(launches);
+        }
+
 
         public IActionResult Privacy()
         {

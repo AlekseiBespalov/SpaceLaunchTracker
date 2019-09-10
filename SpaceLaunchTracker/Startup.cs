@@ -1,4 +1,6 @@
 ﻿using AutoMapper;
+using JavaScriptEngineSwitcher.ChakraCore;
+using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using LaunchAPIConsole.Data.ApiModels.SpaceX.Launches;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -7,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using React.AspNet;
 using SpaceLaunchTracker.Configuration;
 using SpaceLaunchTracker.Data;
 using SpaceLaunchTracker.Data.ApiModels.LaunchLibrary.Launches;
@@ -38,6 +41,7 @@ namespace SpaceLaunchTracker
             });
 
             services.Configure<DataUpdatesConfiguration>(Configuration);
+
 
             services.AddAutoMapper(typeof(DomainProfile));
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
