@@ -199,7 +199,7 @@ namespace SpaceLaunchTracker.Services
             {
                 LaunchNumber = launch.LaunchId,
                 MissionName = launch.LaunchName,
-                LaunchDate = DateTime.ParseExact(launch.LaunchTime, "MMMMM d, yyyy HH:mm:ss UTC", CultureInfo.InvariantCulture),
+                LaunchDate = DateTime.ParseExact(launch.LaunchTime, "MMMM d, yyyy HH:mm:ss UTC", CultureInfo.InvariantCulture),
                 LaunchSite = launch.Location.LocationName,
                 RocketName = launch.Rocket.RocketName,
                 MissionDetails = launch.Missions?.FirstOrDefault()?.MissionDescription,
