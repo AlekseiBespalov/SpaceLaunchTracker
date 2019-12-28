@@ -1,15 +1,11 @@
 ﻿using AutoMapper;
-using JavaScriptEngineSwitcher.ChakraCore;
-using JavaScriptEngineSwitcher.Extensions.MsDependencyInjection;
 using LaunchAPIConsole.Data.ApiModels.SpaceX.Launches;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using React.AspNet;
 using SpaceLaunchTracker.Configuration;
 using SpaceLaunchTracker.Data;
 using SpaceLaunchTracker.Data.ApiModels.LaunchLibrary.Launches;
@@ -17,7 +13,6 @@ using SpaceLaunchTracker.Data.Clients;
 using SpaceLaunchTracker.Data.Repository;
 using SpaceLaunchTracker.Mappings;
 using SpaceLaunchTracker.Services;
-using Swashbuckle.AspNetCore.Swagger;
 
 namespace SpaceLaunchTracker
 {
@@ -42,16 +37,27 @@ namespace SpaceLaunchTracker
 
             services.Configure<DataUpdatesConfiguration>(Configuration);
 
-
             services.AddAutoMapper(typeof(DomainProfile));
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+            services.AddMvc(options => options.EnableEndpointRouting = false).AddNewtonsoftJson();
+            services.AddControllersWithViews();
+            services.AddRazorPages();
 
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new Info { Title = "Space launch tracker API", Description = "Swagger space launch tracker API" });
-            });
+            //services.AddSwaggerGen(c =>
+            //{
+            //    c.SwaggerDoc("v1", new Info { Title = "Space launch tracker API", Description = "Swagger space launch tracker API" });
+            //});
             services.AddHostedService<LaunchesUpdateService>();
-            services.AddDbContext<SpaceLaunchTrackerDbContext>(options => options.UseSqlServer(Configuration.GetConnectionString("Default")));
+
+            services.AddDbContext<SpaceLaunchTrackerDbContext>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("Default")));
+
+            services.AddDbContext<ApplicationDbContext>(options =>
+                options.UseSqlServer(
+                    Configuration.GetConnectionString("UsersConnection")));
+            services.AddDefaultIdentity<IdentityUser>()
+                .AddDefaultUI()
+                .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddScoped<ILaunchRepository, LaunchRepository>();
             services.AddScoped<IAgencyRepository, AgencyRepository>();
@@ -62,35 +68,29 @@ namespace SpaceLaunchTracker
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app)
         {
-            if (env.IsDevelopment())
-            {
-                app.UseDeveloperExceptionPage();
-            }
-            else
-            {
-                app.UseExceptionHandler("/Launches/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
-            }
+            app.UseDeveloperExceptionPage();
+            app.UseExceptionHandler("/Launches/Error");
+            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+            app.UseHsts();
 
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
 
+            app.UseAuthentication();
+
             app.UseMvc(routes =>
             {
-                routes.MapRoute(
-                    name: "default",
-                    template: "{controller=Launches}/{action=Index}/{id?}");
+                routes.MapRoute("default", "{controller=Launches}/{action=Index}/{id?}");
             });
 
-            app.UseSwagger();
-            app.UseSwaggerUI(c =>
-            {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "Space launch tracker API");
-            });
+            //app.UseSwagger();
+            //app.UseSwaggerUI(c =>
+            //{
+            //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Space launch tracker API");
+            //});
         }
     }
 }

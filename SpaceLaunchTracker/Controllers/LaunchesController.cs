@@ -18,14 +18,12 @@ namespace SpaceLaunchTracker.Controllers
             _launchService = launchService;
         }
 
-        //fix
         [HttpGet]
         public async Task<IActionResult> Index()
         {
             List<LaunchViewModel> launches = await _launchService.GetUpcomingLaunches();
             return View(launches);
         }
-
 
         public IActionResult Privacy()
         {

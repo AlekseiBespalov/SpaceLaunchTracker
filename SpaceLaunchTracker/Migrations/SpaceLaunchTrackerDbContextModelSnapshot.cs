@@ -15,7 +15,7 @@ namespace SpaceLaunchTracker.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "2.2.6-servicing-10079")
+                .HasAnnotation("ProductVersion", "3.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
@@ -23,13 +23,17 @@ namespace SpaceLaunchTracker.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("AgencyName");
+                    b.Property<string>("AgencyName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("CountryId");
+                    b.Property<int?>("CountryId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("InfoUrl");
+                    b.Property<string>("InfoUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -42,9 +46,11 @@ namespace SpaceLaunchTracker.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("CountryCode");
+                    b.Property<string>("CountryCode")
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -55,29 +61,41 @@ namespace SpaceLaunchTracker.Migrations
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int?>("AgencyId");
+                    b.Property<int?>("AgencyId")
+                        .HasColumnType("int");
 
-                    b.Property<DateTime>("ChangedTime");
+                    b.Property<DateTime>("ChangedTime")
+                        .HasColumnType("datetime2");
 
-                    b.Property<int?>("CountryId");
+                    b.Property<int?>("CountryId")
+                        .HasColumnType("int");
 
-                    b.Property<string>("InfoUrl");
+                    b.Property<string>("InfoUrl")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("LaunchDate");
+                    b.Property<DateTime>("LaunchDate")
+                        .HasColumnType("datetime2");
 
-                    b.Property<int>("LaunchNumber");
+                    b.Property<int>("LaunchNumber")
+                        .HasColumnType("int");
 
-                    b.Property<string>("LaunchSite");
+                    b.Property<string>("LaunchSite")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MissionDetails");
+                    b.Property<string>("MissionDetails")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MissionName");
+                    b.Property<string>("MissionName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("RocketName");
+                    b.Property<string>("RocketName")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("UpdatedTime");
+                    b.Property<DateTime>("UpdatedTime")
+                        .HasColumnType("datetime2");
 
                     b.HasKey("Id");
 

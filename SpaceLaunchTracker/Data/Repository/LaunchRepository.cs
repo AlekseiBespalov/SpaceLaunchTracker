@@ -32,14 +32,17 @@ namespace SpaceLaunchTracker.Data.Repository
         public async Task<int> AddLaunchToDbIfNotExist(LaunchDto launch)
         {
             LaunchDto existLaunch = await _context.Launches.FirstOrDefaultAsync(l => l.LaunchNumber == launch.LaunchNumber);
+
             if(existLaunch == null)
             {
                 await _context.AddAsync(launch);
                 await SaveChangesAsync();
                 return launch.Id;
             }
-
-            return existLaunch.Id;
+            else
+            {
+                return existLaunch.Id;
+            }
         }
 
         public async Task AddLaunchesToDb(IList<LaunchDto> launches)

@@ -1,5 +1,4 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace SpaceLaunchTracker.Migrations
@@ -13,7 +12,7 @@ namespace SpaceLaunchTracker.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     CountryCode = table.Column<string>(nullable: true)
                 },
                 constraints: table =>
@@ -26,7 +25,7 @@ namespace SpaceLaunchTracker.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     AgencyName = table.Column<string>(nullable: true),
                     InfoUrl = table.Column<string>(nullable: true),
                     CountryId = table.Column<int>(nullable: true)
@@ -47,7 +46,7 @@ namespace SpaceLaunchTracker.Migrations
                 columns: table => new
                 {
                     Id = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                        .Annotation("SqlServer:Identity", "1, 1"),
                     LaunchNumber = table.Column<int>(nullable: false),
                     MissionName = table.Column<string>(nullable: true),
                     LaunchDate = table.Column<DateTime>(nullable: false),
