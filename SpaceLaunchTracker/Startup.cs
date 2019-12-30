@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using LaunchAPIConsole.Data.ApiModels.SpaceX.Launches;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -28,6 +29,13 @@ namespace SpaceLaunchTracker
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors(o => o.AddPolicy("ReactPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+
             services.Configure<CookiePolicyOptions>(options =>
             {
                 // This lambda determines whether user consent for non-essential cookies is needed for a given request.
@@ -68,29 +76,39 @@ namespace SpaceLaunchTracker
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
         {
-            app.UseDeveloperExceptionPage();
-            app.UseExceptionHandler("/Launches/Error");
-            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-            app.UseHsts();
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseHsts();
+            }
 
             app.UseHttpsRedirection();
-            app.UseStaticFiles();
-            app.UseCookiePolicy();
+            app.UseMvc();
+            app.UseCors("ReactPolicy");
 
-            app.UseAuthentication();
+            //app.UseDeveloperExceptionPage();
+            //app.UseExceptionHandler("/Launches/Error");
+            //// The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+            //app.UseHsts();
 
-            app.UseMvc(routes =>
-            {
-                routes.MapRoute("default", "{controller=Launches}/{action=Index}/{id?}");
-            });
+            //app.UseHttpsRedirection();
+            //app.UseStaticFiles();
+            //app.UseCookiePolicy();
 
-            //app.UseSwagger();
-            //app.UseSwaggerUI(c =>
-            //{
-            //    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Space launch tracker API");
-            //});
+            //app.UseAuthentication();
+
+            //app.UseMvc();
+
+            ////app.UseSwagger();
+            ////app.UseSwaggerUI(c =>
+            ////{
+            ////    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Space launch tracker API");
+            ////});
         }
     }
 }

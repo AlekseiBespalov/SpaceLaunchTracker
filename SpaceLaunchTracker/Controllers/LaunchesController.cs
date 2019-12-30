@@ -3,12 +3,17 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using SpaceLaunchTracker.Models;
 using SpaceLaunchTracker.Services;
 
 namespace SpaceLaunchTracker.Controllers
 {
+    [Produces ("application/json")]
+    [Route("api/[controller]")]
+    [ApiController]
+    [EnableCors("ReactPolicy")]
     public class LaunchesController : Controller
     {
         private readonly LaunchService _launchService;
@@ -18,11 +23,13 @@ namespace SpaceLaunchTracker.Controllers
             _launchService = launchService;
         }
 
+        // GET api/launches
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IEnumerable<LaunchViewModel>> Get()
         {
             List<LaunchViewModel> launches = await _launchService.GetUpcomingLaunches();
-            return View(launches);
+
+            return launches;
         }
 
         public IActionResult Privacy()
