@@ -8,7 +8,7 @@ namespace SpaceLaunchTrackerTests
         [Fact]
         public void Test1()
         {
-
+            
         }
     }
 }
