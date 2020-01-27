@@ -56,16 +56,19 @@ namespace SpaceLaunchTracker
             //});
             services.AddHostedService<LaunchesUpdateService>();
 
-            services.AddDbContext<SpaceLaunchTrackerDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("Default")));
+            // services.AddDbContext<SpaceLaunchTrackerDbContext>(options =>
+            //     options.UseSqlServer(
+            //         Configuration.GetConnectionString("Default")));
 
-            services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
-                    Configuration.GetConnectionString("UsersConnection")));
-            services.AddDefaultIdentity<IdentityUser>()
-                .AddDefaultUI()
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+            services.AddDbContext<SpaceLaunchTrackerDbContext>(options =>
+                options.UseNpgsql(Configuration.GetConnectionString("PostgreSQLlaunches")));
+
+            // services.AddDbContext<ApplicationDbContext>(options =>
+            //     options.UseSqlServer(
+            //         Configuration.GetConnectionString("UsersConnection")));
+            // services.AddDefaultIdentity<IdentityUser>()
+            //     .AddDefaultUI()
+            //     .AddEntityFrameworkStores<ApplicationDbContext>();
 
             services.AddScoped<ILaunchRepository, LaunchRepository>();
             services.AddScoped<IAgencyRepository, AgencyRepository>();

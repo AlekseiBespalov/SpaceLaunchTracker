@@ -4,7 +4,7 @@ namespace LaunchAPIConsole.Data.ApiModels.SpaceX.Launches
 {
     public class SpaceXFairings
     {
-        public bool Reused { get; set; }
+        public bool? Reused { get; set; }
 
         [JsonProperty(PropertyName = "recovery_attempt")]
         public bool? RecoveryAttempt { get; set; }
