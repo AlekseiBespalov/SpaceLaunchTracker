@@ -55,71 +55,71 @@ namespace SpaceLaunchTracker.Services
 
         private async void UpdateDbRecordsFromApi(object state)
         {
-            // using (var scope = _serviceProvider.CreateScope())
-            // {
-            //     var spaceXClient = scope.ServiceProvider.GetRequiredService<ILaunchClient<SpaceXLaunchModel>>();
-            //     var launchLibraryClient = scope.ServiceProvider.GetRequiredService<ILaunchClient<LibraryLaunchModel>>();
-            //     var launchRepository = scope.ServiceProvider.GetRequiredService<ILaunchRepository>();
-            //     var agencyRepository = scope.ServiceProvider.GetRequiredService<IAgencyRepository>();
-            //     var countryRepository = scope.ServiceProvider.GetRequiredService<ICountryRepository>();
+            using (var scope = _serviceProvider.CreateScope())
+            {
+                var spaceXClient = scope.ServiceProvider.GetRequiredService<ILaunchClient<SpaceXLaunchModel>>();
+                var launchLibraryClient = scope.ServiceProvider.GetRequiredService<ILaunchClient<LibraryLaunchModel>>();
+                var launchRepository = scope.ServiceProvider.GetRequiredService<ILaunchRepository>();
+                var agencyRepository = scope.ServiceProvider.GetRequiredService<IAgencyRepository>();
+                var countryRepository = scope.ServiceProvider.GetRequiredService<ICountryRepository>();
 
-            //     if (_firstUpdate == true)
-            //     {
-            //         var spaceXLaunches = await spaceXClient.GetAllLaunches();
+                if (_firstUpdate == true)
+                {
+                    var spaceXLaunches = await spaceXClient.GetAllLaunches();
 
-            //         foreach (var spaceXLaunch in spaceXLaunches)
-            //         {
-            //             var country = ConvertSpaceXCountryModelToDto(); //map to dto
+                    foreach (var spaceXLaunch in spaceXLaunches)
+                    {
+                        var country = ConvertSpaceXCountryModelToDto(); //map to dto
 
-            //             // add to repository (get id)
-            //             var countryId = await countryRepository.AddCountryToDbIfNotExists(country);
-            //             country = await countryRepository.GetCountryByIdAsync(countryId);
+                        // add to repository (get id)
+                        var countryId = await countryRepository.AddCountryToDbIfNotExists(country);
+                        country = await countryRepository.GetCountryByIdAsync(countryId);
 
-            //             var agency = ConvertSpaceXAgencyModelToDto(country);
-            //             var agencyId = await agencyRepository.AddAgencyToDbIfNotExists(agency);
-            //             agency = await agencyRepository.GetAgencyByIdAsync(agencyId);
+                        var agency = ConvertSpaceXAgencyModelToDto(country);
+                        var agencyId = await agencyRepository.AddAgencyToDbIfNotExists(agency);
+                        agency = await agencyRepository.GetAgencyByIdAsync(agencyId);
 
-            //             var launch = ConvertSpaceXLaunchToDto(spaceXLaunch, country, agency);
-            //             await launchRepository.AddLaunchToDbIfNotExist(launch);
-            //         }
-            //         _firstUpdate = false;
-            //     }
-            //     else
-            //     {
-            //         var spaceXLaunches = await spaceXClient.GetUpcomingLaunches();
+                        var launch = ConvertSpaceXLaunchToDto(spaceXLaunch, country, agency);
+                        await launchRepository.AddLaunchToDbIfNotExist(launch);
+                    }
+                    _firstUpdate = false;
+                }
+                else
+                {
+                    var spaceXLaunches = await spaceXClient.GetUpcomingLaunches();
 
-            //         foreach (var spaceXLaunch in spaceXLaunches)
-            //         {
-            //             var country = ConvertSpaceXCountryModelToDto();
+                    foreach (var spaceXLaunch in spaceXLaunches)
+                    {
+                        var country = ConvertSpaceXCountryModelToDto();
 
-            //             var countryId = await countryRepository.AddCountryToDbIfNotExists(country);
-            //             country = await countryRepository.GetCountryByIdAsync(countryId);
+                        var countryId = await countryRepository.AddCountryToDbIfNotExists(country);
+                        country = await countryRepository.GetCountryByIdAsync(countryId);
 
-            //             var agency = ConvertSpaceXAgencyModelToDto(country);
-            //             var agencyId = await agencyRepository.AddAgencyToDbIfNotExists(agency);
-            //             agency = await agencyRepository.GetAgencyByIdAsync(agencyId);
+                        var agency = ConvertSpaceXAgencyModelToDto(country);
+                        var agencyId = await agencyRepository.AddAgencyToDbIfNotExists(agency);
+                        agency = await agencyRepository.GetAgencyByIdAsync(agencyId);
 
-            //             var launch = ConvertSpaceXLaunchToDto(spaceXLaunch, country, agency);
-            //             await launchRepository.AddLaunchToDbIfNotExist(launch);
-            //         }
-            //     }
+                        var launch = ConvertSpaceXLaunchToDto(spaceXLaunch, country, agency);
+                        await launchRepository.AddLaunchToDbIfNotExist(launch);
+                    }
+                }
 
-            //     var launchLibraryLaunches = await launchLibraryClient.GetUpcomingLaunches();
+                var launchLibraryLaunches = await launchLibraryClient.GetUpcomingLaunches();
 
-            //     foreach (var launchLibraryLaunch in launchLibraryLaunches)
-            //     {
-            //         var country = ConvertLaunchLibraryCountryModelToDto(launchLibraryLaunch);
-            //         var countryId = await countryRepository.AddCountryToDbIfNotExists(country);
-            //         country = await countryRepository.GetCountryByIdAsync(countryId);
+                foreach (var launchLibraryLaunch in launchLibraryLaunches)
+                {
+                    var country = ConvertLaunchLibraryCountryModelToDto(launchLibraryLaunch);
+                    var countryId = await countryRepository.AddCountryToDbIfNotExists(country);
+                    country = await countryRepository.GetCountryByIdAsync(countryId);
 
-            //         var agency = ConvertLaunchLibraryAgencyModelToDto(launchLibraryLaunch, country);
-            //         var agencyId = await agencyRepository.AddAgencyToDbIfNotExists(agency);
-            //         agency = await agencyRepository.GetAgencyByIdAsync(agencyId);
+                    var agency = ConvertLaunchLibraryAgencyModelToDto(launchLibraryLaunch, country);
+                    var agencyId = await agencyRepository.AddAgencyToDbIfNotExists(agency);
+                    agency = await agencyRepository.GetAgencyByIdAsync(agencyId);
 
-            //         var launch = ConvertLaunchLibraryLaunchModelToDto(launchLibraryLaunch, country, agency);
-            //         await launchRepository.AddLaunchToDbIfNotExist(launch);
-            //     }
-            // }
+                    var launch = ConvertLaunchLibraryLaunchModelToDto(launchLibraryLaunch, country, agency);
+                    await launchRepository.AddLaunchToDbIfNotExist(launch);
+                }
+            }
         }
 
         public void Dispose()

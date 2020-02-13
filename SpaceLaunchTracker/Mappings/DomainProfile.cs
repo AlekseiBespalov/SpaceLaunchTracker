@@ -2,12 +2,9 @@
 using LaunchAPIConsole.Data.ApiModels.SpaceX.Launches;
 using SpaceLaunchTracker.Data.ApiModels.LaunchLibrary.Launches;
 using SpaceLaunchTracker.Data.DataModels;
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Threading.Tasks;
 using SpaceLaunchTracker.Models;
+using System;
+using System.Globalization;
 
 namespace SpaceLaunchTracker.Mappings
 {

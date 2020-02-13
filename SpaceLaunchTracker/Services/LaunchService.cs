@@ -1,12 +1,11 @@
-﻿using SpaceLaunchTracker.Data.DataModels;
+﻿using AutoMapper;
+using SpaceLaunchTracker.Data.DataModels;
 using SpaceLaunchTracker.Data.Repository;
+using SpaceLaunchTracker.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Channels;
 using System.Threading.Tasks;
-using AutoMapper;
-using SpaceLaunchTracker.Models;
 
 namespace SpaceLaunchTracker.Services
 {
@@ -47,7 +46,7 @@ namespace SpaceLaunchTracker.Services
         public async Task<List<LaunchViewModel>> GetUpcomingLaunches()
         {
             var allLaunches = await _dbRepository.GetAllLaunchesAsync();
-            
+
             var upcomingLaunches = new List<LaunchViewModel>();
 
             foreach (var launchDto in allLaunches)

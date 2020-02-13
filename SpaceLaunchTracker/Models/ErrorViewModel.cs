@@ -1,5 +1,3 @@
-using System;
-
 namespace SpaceLaunchTracker.Models
 {
     public class ErrorViewModel
